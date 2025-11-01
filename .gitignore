@@ -1,0 +1,61 @@
+# Root .gitignore for the assignment repo
+
+# Node / npm
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Environment files
+.env
+.env.*
+
+# Build outputs
+dist/
+build/
+coverage/
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# Generated files
+*.local
+
+# Backend uploads (do NOT commit large uploaded files)
+backend/uploads/
+
+# Frontend CRA build
+frontend/build/
+
+# Misc
+*.tgz
+
+# Ignore any secret or key files
+*.pem
+*.key
+
+# Keep git metadata out of project
+.ssh/
+
+# Ignore temporary system files
+*.tmp
+*.temp
+
+# Optional: lockfile for pnpm
+.pnpm-debug.log
+
+# End of .gitignore
