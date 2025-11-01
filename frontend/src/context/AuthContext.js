@@ -1,0 +1,109 @@
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import { authAPI } from '../services/api';
+
+const AuthContext = createContext();
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [token, setToken] = useState(localStorage.getItem('token'));
+
+  useEffect(() => {
+    if (token) {
+      getUserData();
+    } else {
+      setLoading(false);
+    }
+  }, [token]);
+
+  const getUserData = async () => {
+  try {
+    console.log('🔄 Getting user data...');
+    const response = await authAPI.getMe();
+    console.log('✅ User data received:', response.data.data);
+    setUser(response.data.data);
+  } catch (error) {
+    console.error('❌ Error getting user data:', error.response?.data);
+    // Don't logout immediately, just set loading to false
+    // logout();
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const login = async (credentials) => {
+    try {
+      const response = await authAPI.login(credentials);
+      const { data, token: newToken } = response.data.data;
+      
+      localStorage.setItem('token', newToken);
+      setToken(newToken);
+      setUser(data);
+      
+      return { success: true, data };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Login failed' 
+      };
+    }
+  };
+
+  const registerStudent = async (userData) => {
+    try {
+      const response = await authAPI.registerStudent(userData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Registration failed' 
+      };
+    }
+  };
+
+  const registerFaculty = async (userData) => {
+    try {
+      const response = await authAPI.registerFaculty(userData);
+      return { success: true, data: response.data };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Registration failed' 
+      };
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+  };
+
+  const value = {
+    user,
+    token,
+    loading,
+    login,
+    registerStudent,
+    registerFaculty,
+    logout,
+    isAuthenticated: !!token,
+    isStudent: user?.role === 'student',
+    isFaculty: user?.role === 'faculty',
+    isAdmin: user?.role === 'admin',
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
